@@ -62,15 +62,15 @@ class MyModule(val incrementBy: Int) extends chisel3.Module {
   // introduction actually goes which might not be entirely obvious.
 
   // Increment input by some value
-  // io.dataOut := io.dataIn + incrementBy.U
+  io.dataOut := io.dataIn + incrementBy.U
 
 
   // A basic stateful circuit. It ignores input!
-  // val regA = RegInit(2.U(4.W))
-  // val regB = RegInit(1.U(4.W))
-  // regA := regB
-  // regB := regA
-  // io.dataOut := regA
+  val regA = RegInit(2.U(4.W))
+  val regB = RegInit(1.U(4.W))
+  regA := regB
+  regB := regA
+  io.dataOut := regA
 }
 
 
@@ -89,19 +89,19 @@ class TestRunner(c: MyModule) extends chisel3.iotesters.PeekPokeTester(c)  {
 
   // calling peek with super just to emphasize where peek and poke comes from,
   // and why we can't call it directly on the module argument c
-  // val o = super.peek(c.io.dataOut)
-  // say(s"observed state: $o")
-  // poke(c.io.dataIn, 3)
-  // val o2 = super.peek(c.io.dataOut)
-  // say(s"observed state after poking: $o")
+   val o = super.peek(c.io.dataOut)
+   say(s"observed state: $o")
+   poke(c.io.dataIn, 3)
+   val o2 = super.peek(c.io.dataOut)
+   say(s"observed state after poking: $o")
 
 
-  // for(ii <- 0 until 10){
-  //   poke(c.io.dataIn, ii.U)
-  //   val o3 = peek(c.io.dataOut)
-  //   say(s"observed state at iteration $ii: $o3")
-  //   step(1)
-  // }
+   for(ii <- 0 until 10){
+     poke(c.io.dataIn, ii.U)
+     val o3 = peek(c.io.dataOut)
+     say(s"observed state at iteration $ii: $o3")
+     step(1)
+   }
 
   warn("testRunner finished...")
 }

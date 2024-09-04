@@ -8,10 +8,10 @@ class MatMul(val rowDimsA: Int, val colDimsA: Int) extends MultiIOModule {
 
   val io = IO(
     new Bundle {
-      val dataInA     = Input(UInt(32.W))
-      val dataInB     = Input(UInt(32.W))
+      val dataInA = Input(UInt(32.W))
+      val dataInB = Input(UInt(32.W))
 
-      val dataOut     = Output(UInt(32.W))
+      val dataOut = Output(UInt(32.W))
       val outputValid = Output(Bool())
     }
   )
@@ -22,30 +22,26 @@ class MatMul(val rowDimsA: Int, val colDimsA: Int) extends MultiIOModule {
     }
   )
 
-
-  /**
-    * Your code here
+  /** Your code here
     */
-  val matrixA     = Module(new Matrix(rowDimsA, colDimsA)).io
-  val matrixB     = Module(new Matrix(rowDimsA, colDimsA)).io
+  val matrixA = Module(new Matrix(rowDimsA, colDimsA)).io
+  val matrixB = Module(new Matrix(rowDimsA, colDimsA)).io
   val dotProdCalc = Module(new DotProd(colDimsA)).io
+  val controller = Module(new Controller(rowDimsA, colDimsA)).io
 
-  matrixA.dataIn      := 0.U
-  matrixA.rowIdx      := 0.U
-  matrixA.colIdx      := 0.U
-  matrixA.writeEnable := false.B
+  for (ii <- 0 until rowDimsA) {
+    matrixA.colIdx := controller.colIdx
+    matrixA.rowIdx := controller.rowIdx
 
-  matrixB.rowIdx      := 0.U
-  matrixB.colIdx      := 0.U
-  matrixB.dataIn      := 0.U
-  matrixB.writeEnable := false.B
+    matrixB.colIdx := controller.rowIdx
+    matrixB.rowIdx := controller.colIdx
 
-  dotProdCalc.dataInA := 0.U
-  dotProdCalc.dataInB := 0.U
+    dotProdCalc.dataInA := matrixA.dataOut
+    dotProdCalc.dataInB := matrixB.dataOut
 
-  io.dataOut := 0.U
-  io.outputValid := false.B
+  }
 
+  io.dataOut := dotProdCalc.dataOut
+  io.
 
-  debug.myDebugSignal := false.B
 }
